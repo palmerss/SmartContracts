@@ -76,3 +76,21 @@ class TestTimedAssetLockContract:
                                           [asset_id])
         client.send_transactions([txn])
         wait_for_txn_confirmation(client, txn_id, 5)
+
+    def test_on_opt_in(self, app_id, test_config, client):
+        from algosdk import mnemonic
+        from akita_inu_asa_utils import opt_in_app_signed_txn, wait_for_txn_confirmation
+
+        public_key = test_config['wallet1_publicKey']
+        creator_mnemonic = test_config['wallet1_Mnemonic']
+        asset_id = test_config['asset_id']
+        private_key = mnemonic.to_private_key(creator_mnemonic)
+        params = client.suggested_params()
+
+        txn, txn_id = opt_in_app_signed_txn(private_key,
+                                            public_key,
+                                            params,
+                                            app_id,
+                                            foreign_assets=[asset_id])
+        client.send_transactions([txn])
+        wait_for_txn_confirmation(client, txn_id, 5)

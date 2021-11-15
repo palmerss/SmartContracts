@@ -144,7 +144,9 @@ def create_app_signed_txn(private_key,
 def opt_in_app_signed_txn(private_key,
                           public_key,
                           params,
-                          app_id):
+                          app_id,
+                          foreign_assets=None,
+                          app_args=None):
     """
     Creates and signs an "opt in" transaction to an application
         Args:
@@ -157,7 +159,9 @@ def opt_in_app_signed_txn(private_key,
     """
     txn = transaction.ApplicationOptInTxn(public_key,
                                           params,
-                                          app_id)
+                                          app_id,
+                                          foreign_assets=foreign_assets,
+                                          app_args=app_args)
     signed_txn = sign_txn(txn, private_key)
     return signed_txn, signed_txn.transaction.get_txid()
 
@@ -235,4 +239,3 @@ def transfer_signed_txn(sender_private_key,
                                  amount)
     signed_txn = sign_txn(txn, sender_private_key)
     return signed_txn, signed_txn.transaction.get_txid()
-
