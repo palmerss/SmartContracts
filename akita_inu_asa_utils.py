@@ -141,40 +141,6 @@ def create_app_signed_txn(private_key,
     return signed_txn, signed_txn.transaction.get_txid()
 
 
-def create_app_unsigned_txn(
-                       public_key,
-                       params,
-                       on_complete,
-                       approval_program,
-                       clear_program,
-                       global_schema,
-                       local_schema,
-                       app_args):
-    """
-        Creates an unsigned "create app" transaction to an application
-            Args:
-                public_key (str): public key of sender
-                params (???): parameters obtained from algod
-                on_complete (???):
-                approval_program (???): compiled approval program
-                clear_program (???): compiled clear program
-                global_schema (???): global schema variables
-                local_schema (???): local schema variables
-            Returns:
-                ApplicationOptInTxn: unsigned transaction
-    """
-    # create unsigned transaction
-    txn = transaction.ApplicationCreateTxn(public_key,
-                                           params,
-                                           on_complete,
-                                           approval_program,
-                                           clear_program,
-                                           global_schema,
-                                           local_schema,
-                                           app_args)
-    return txn
-
-
 def opt_in_app_signed_txn(private_key,
                           public_key,
                           params,
@@ -195,23 +161,6 @@ def opt_in_app_signed_txn(private_key,
     signed_txn = sign_txn(txn, private_key)
     return signed_txn, signed_txn.transaction.get_txid()
 
-
-def opt_in_app_unsigned_txn(public_key,
-                          params,
-                          app_id):
-    """
-    Creates an unsigned "opt in" transaction to an application
-        Args:
-            public_key (str): public key of sender
-            params (???): parameters obtained from algod
-            app_id (int): id of application
-        Returns:
-            ApplicationOptInTxn: unsigned transaction
-    """
-    unsigned_txn = transaction.ApplicationOptInTxn(public_key,
-                                                   params,
-                                                   app_id)
-    return unsigned_txn
 
 def noop_app_signed_txn(private_key,
                           public_key,
