@@ -9,9 +9,17 @@ import os
 def getApplicationAddress(app_id):
     return encoding.encode_address(encoding.checksum(b'appID' + app_id.to_bytes(8, 'big')))
 
+def deleteAllApps(client, public_key, private_key):
+    apps = client.account_info("W5RWJVUUJEH67D6DMW7Z6PCYI2TQNZYILEXTP4YP5XI5VVPB6T5O7NPZHU")['created-apps']
+    for app in apps:
+        app_id = app['id']
+        delete_app_signed_txn(private_key, public_key, client.suggested_params(), app_id)
+
+
 def check_build_dir():
     if not os.path.exists('build'):
         os.mkdir('build')
+
 
 def compile_program(client, source_code, file_path=None):
     compile_response = client.compile(source_code)
@@ -222,6 +230,29 @@ def noop_app_signed_txn(private_key,
             tuple: Tuple containing the signed transaction and signed transaction id
     """
     txn = transaction.ApplicationNoOpTxn(public_key,
+                                         params,
+                                         app_id,
+                                         foreign_assets=asset_ids)
+    signed_txn = sign_txn(txn, private_key)
+    return signed_txn, signed_txn.transaction.get_txid()
+
+def delete_app_signed_txn(private_key,
+                          public_key,
+                          params,
+                          app_id,
+                          asset_ids=None):
+    """
+    Creates and signs an "noOp" transaction to an application
+        Args:
+            private_key (str): private key of sender
+            public_key (str): public key of sender
+            params (???): parameters obtained from algod
+            app_id (int): id of application
+            asset_id (int): id of asset if any
+        Returns:
+            tuple: Tuple containing the signed transaction and signed transaction id
+    """
+    txn = transaction.ApplicationDeleteTxn(public_key,
                                          params,
                                          app_id,
                                          foreign_assets=asset_ids)
