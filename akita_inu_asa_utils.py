@@ -170,7 +170,7 @@ def create_app_signed_txn(private_key,
                           clear_program,
                           global_schema,
                           local_schema,
-                          app_args):
+                          app_args=None):
     """
         Creates an signed "create app" transaction to an application
             Args:
@@ -269,7 +269,8 @@ def noop_app_signed_txn(private_key,
                         public_key,
                         params,
                         app_id,
-                        asset_ids=None):
+                        asset_ids=None,
+                        app_args=None):
     """
     Creates and signs an "noOp" transaction to an application
         Args:
@@ -278,13 +279,15 @@ def noop_app_signed_txn(private_key,
             params (???): parameters obtained from algod
             app_id (int): id of application
             asset_id (int): id of asset if any
+            app_args (list): list of app arguments
         Returns:
             tuple: Tuple containing the signed transaction and signed transaction id
     """
     txn = transaction.ApplicationNoOpTxn(public_key,
                                          params,
                                          app_id,
-                                         foreign_assets=asset_ids)
+                                         foreign_assets=asset_ids,
+                                         app_args=app_args)
     signed_txn = sign_txn(txn, private_key)
     return signed_txn, signed_txn.transaction.get_txid()
 
