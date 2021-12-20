@@ -73,6 +73,23 @@ def read_global_state(client, addr, app_id):
             return app['params']['global-state']
 
 
+def pretty_print_state(state):
+    for keyvalue in state:
+        print(base64.b64decode(keyvalue['key']))
+        print(keyvalue['value'])
+    print("\n\n\n")
+
+
+def get_key_from_state(state, key):
+    for i in range(0, len(state)):
+        found_key = base64.b64decode(state[i]['key'])
+        if found_key == key:
+            if state[i]['value']['type'] == 1:
+                return base64.b64decode(state[i]['value']['bytes'])
+            elif state[i]['value']['type'] == 2:
+                return state[i]['value']['uint']
+
+
 def dump_teal_assembly(file_path, program_fn_pointer):
     check_build_dir()
     with open('build/' + file_path, 'w') as f:
@@ -105,12 +122,16 @@ def get_algod_client(token, address):
 
 
 def write_schema(file_path, num_ints, num_bytes):
-    schema = transaction.StateSchema(num_ints, num_bytes)
-    dump(schema, 'build/' + file_path)
+    f = open('build/' + file_path, "w")
+    json.dump({"num_ints": num_ints,
+               "num_bytes": num_bytes}, f)
+    f.close()
 
 
 def load_schema(file_path):
-    return load('build/' + file_path)
+    f = open('build/' + file_path, 'r')
+    stateJSON = json.load(f)
+    return transaction.StateSchema(stateJSON['num_ints'], stateJSON['num_bytes'])
 
 
 def wait_for_txn_confirmation(client, transaction_id, timeout):
@@ -269,8 +290,8 @@ def noop_app_signed_txn(private_key,
                         public_key,
                         params,
                         app_id,
-                        asset_ids=None,
-                        app_args=None):
+                        app_args=None,
+                        asset_ids=None):
     """
     Creates and signs an "noOp" transaction to an application
         Args:
@@ -279,15 +300,14 @@ def noop_app_signed_txn(private_key,
             params (???): parameters obtained from algod
             app_id (int): id of application
             asset_id (int): id of asset if any
-            app_args (list): list of app arguments
         Returns:
             tuple: Tuple containing the signed transaction and signed transaction id
     """
     txn = transaction.ApplicationNoOpTxn(public_key,
                                          params,
                                          app_id,
-                                         foreign_assets=asset_ids,
-                                         app_args=app_args)
+                                         app_args=app_args,
+                                         foreign_assets=asset_ids)
     signed_txn = sign_txn(txn, private_key)
     return signed_txn, signed_txn.transaction.get_txid()
 
